@@ -17,9 +17,14 @@ def collect_all_articles(soup):
     for soup_article in soup.find_all("article"):
         article = dict()
         article['time'] = soup_article.find("time").text
-        article['link_to_article'] = soup_article.find("a", attrs={"class": "c-card__link"}).text
-        article['header_article'] = soup_article.find("a", attrs={"class": "c-card__link"})['href']
+        article['header_article'] = soup_article.find("a", attrs={"class": "c-card__link"}).text
         article['img'] = soup_article.find("img")['data-src']
+
+        link_to_article = soup_article.find("a", attrs={"class": "c-card__link"})['href']
+        slug = link_to_article.split('ru/')[1]
+        slug_combined_category = slug.replace("/", "-")
+        article['slug'] = slug_combined_category
+
         articels.append(article)
 
     return articels
@@ -33,5 +38,5 @@ def news_search(request):
 
     return render(request, 'core/news_search.html', {'articels': articles})
 
-def article(request):
-    pass
+def article(request, slug):
+    return render(request, 'core/article.html')

@@ -14,8 +14,7 @@
 
 {% for article in articels %}
     <img src="{{ article.img }}" alt="">
-    {{ article.link_to_article }}
-    {{ article.header_article }}
+    <a href="/article/{{ article.slug }}">{{ article.header_article }}</a>
     {{ article.time }}
     <hr>
 {% endfor %}
