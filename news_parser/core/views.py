@@ -3,11 +3,17 @@ from django.shortcuts import render
 from bs4 import BeautifulSoup, SoupStrainer
 
 
-def get_html_content(request):
-    news = request.GET.get('news')
-    news = news.replace(" ", "+")
+def get_html_content(request, slug=None):
     session = requests.Session()
-    html_content = session.get(f'https://tsn.ua/ru/search?query=+{news}').text
+    if slug == None:
+        news = request.GET.get('news')
+        news = news.replace(" ", "+")
+        html_content = session.get(f'https://tsn.ua/ru/search?query=+{news}').text
+    else:
+        category = slug.split('-')[0]
+        slug_without_category = slug.split('-', 1)[1]
+        html_content = session.get(f'https://tsn.ua/ru/{category}/{slug_without_category}').text
+
     return html_content
 
 #fetch the data of the article from the news site
@@ -39,4 +45,8 @@ def news_search(request):
     return render(request, 'core/news_search.html', {'articels': articles})
 
 def article(request, slug):
-    return render(request, 'core/article.html')
+    article = dict()
+    html_content = get_html_content(request, slug)
+    article['html_content'] = html_content
+
+    return render(request, 'core/article.html', {'article': article})
