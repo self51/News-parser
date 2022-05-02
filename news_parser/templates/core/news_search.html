@@ -13,10 +13,15 @@
 </form>
 
 {% for article in articels %}
-    <img src="{{ article.img }}" alt="">
-    <a href="/article/{{ article.slug }}">{{ article.header_article }}</a>
+
+    {{ article.type }}
+    {{ article.category }}
+    {{ article.date }}
     {{ article.time }}
+    <a href="/article/{{ article.slug }}">{{ article.title }}</a>
+    {{ article.description }}
     <hr>
+
 {% endfor %}
 
 </body>
