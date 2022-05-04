@@ -1,5 +1,5 @@
 import requests
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from bs4 import BeautifulSoup, Comment
 
 
@@ -16,6 +16,9 @@ def get_html_content(request, slug=None):
 
 #fetch the data of the article from the news site
 def collect_all_articles(soup):
+    if soup.find("div", attrs={"class": "search_count_wrap"}).text == 'нічого не знайдено':
+        return 'Nothing found'
+
     articels = []
     soup = soup.find("ul", attrs={"class": "list search_list"})
     for soup_article in soup.find_all("li"):
@@ -41,26 +44,29 @@ def tag_visible(element):
 
 #fetch the content of the article
 def collect_data_of_article(soup):
-    article = dict()
-    b_img_soup = soup.find("div", attrs={"class": "b_photo"})
-    if b_img_soup != None:
-        article['img'] = b_img_soup.find("span").find("img")['srcset']
+    try:
+        article = dict()
+        b_img_soup = soup.find("div", attrs={"class": "b_photo"})
+        if b_img_soup != None:
+            article['img'] = b_img_soup.find("span").find("img")['srcset']
 
-    article['category'] = soup.find("a", attrs={"class": "category"}).text
-    article['time'] = soup.find("time", attrs={"class": "date"}).text
-    article['title'] = soup.find("h1", attrs={"class": "title"}, id="newsName").text
+        article['category'] = soup.find("a", attrs={"class": "category"}).text
+        article['time'] = soup.find("time", attrs={"class": "date"}).text
+        article['title'] = soup.find("h1", attrs={"class": "title"}, id="newsName").text
 
-    soup_text = soup.find("div", attrs={"class": "newsSummary"}, id="newsSummary")
-    if soup.find("div", attrs={"class": "newsSummary"}, id="newsSummary") == None:
-        soup_text = soup.find("div", id="newsSummary")
+        soup_text = soup.find("div", attrs={"class": "newsSummary"}, id="newsSummary")
+        if soup.find("div", attrs={"class": "newsSummary"}, id="newsSummary") == None:
+            soup_text = soup.find("div", id="newsSummary")
 
-    if soup_text.find("div", attrs={"class": "subscribe-wrap"}) != None:
-        unwanted = soup_text.find("div", attrs={"class": "subscribe-wrap"})
-        unwanted.extract()
+        if soup_text.find("div", attrs={"class": "subscribe-wrap"}) != None:
+            unwanted = soup_text.find("div", attrs={"class": "subscribe-wrap"})
+            unwanted.extract()
 
-    texts = soup_text.findAll(text=True)
-    visible_texts = filter(tag_visible, texts)
-    article['article'] = u" ".join(t.strip() for t in visible_texts)
+        texts = soup_text.findAll(text=True)
+        visible_texts = filter(tag_visible, texts)
+        article['article'] = u" ".join(t.strip() for t in visible_texts)
+    except AttributeError:
+        return '404'
 
     return article
 
@@ -71,11 +77,18 @@ def news_search(request):
         soup = BeautifulSoup(html_content, 'html.parser')
         articles = collect_all_articles(soup)
 
+    if articles == 'Nothing found':
+        nothing_found = 'Nothing found'
+        return render(request, 'core/news_search.html', {'nothing_found': nothing_found})
+
     return render(request, 'core/news_search.html', {'articels': articles})
 
 def article(request, slug):
     html_content = get_html_content(request, slug)
     soup = BeautifulSoup(html_content, 'html.parser')
     article = collect_data_of_article(soup)
+
+    if article == '404':
+        return render(request, 'core/404.html')
 
     return render(request, 'core/article.html', {'article': article})
