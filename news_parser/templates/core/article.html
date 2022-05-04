@@ -12,9 +12,11 @@
     {{ article.time }}
     <hr>
     {{ article.title }}
-    <hr>
-    <img src="{{ article.img }}" alt="">
-    <hr>
+    {% if article.img != None %}
+        <hr>
+        <img src="{{ article.img }}" alt="">
+        <hr>
+    {% endif %}
     {{ article.article }}
     <hr>
 

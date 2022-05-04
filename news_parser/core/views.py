@@ -1,5 +1,5 @@
 import requests
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from bs4 import BeautifulSoup, Comment
 
 
@@ -42,14 +42,22 @@ def tag_visible(element):
 #fetch the content of the article
 def collect_data_of_article(soup):
     article = dict()
-    article['img'] = soup.find("span", attrs={"class": "lazyload-holder"}).find('img')['srcset']
+    b_img_soup = soup.find("div", attrs={"class": "b_photo"})
+    if b_img_soup != None:
+        article['img'] = b_img_soup.find("span").find("img")['srcset']
+
     article['category'] = soup.find("a", attrs={"class": "category"}).text
     article['time'] = soup.find("time", attrs={"class": "date"}).text
     article['title'] = soup.find("h1", attrs={"class": "title"}, id="newsName").text
 
     soup_text = soup.find("div", attrs={"class": "newsSummary"}, id="newsSummary")
-    unwanted = soup_text.find("div", attrs={"class": "subscribe-wrap"})
-    unwanted.extract()
+    if soup.find("div", attrs={"class": "newsSummary"}, id="newsSummary") == None:
+        soup_text = soup.find("div", id="newsSummary")
+
+    if soup_text.find("div", attrs={"class": "subscribe-wrap"}) != None:
+        unwanted = soup_text.find("div", attrs={"class": "subscribe-wrap"})
+        unwanted.extract()
+
     texts = soup_text.findAll(text=True)
     visible_texts = filter(tag_visible, texts)
     article['article'] = u" ".join(t.strip() for t in visible_texts)
