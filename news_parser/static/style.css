@@ -99,3 +99,44 @@ rainbow_animation {
     text-align: center;
     text-transform: lowercase;
 }
+
+.header {
+    margin-top: 30px;
+}
+
+.title {
+    font-family: 'pt serif',sans-serif;
+    font-size: 34px;
+    line-height: 36px;
+    font-weight: 700;
+    margin: 0 0 17px;
+}
+
+.category {
+    float: none;
+    font-size: 14px;
+    font-family: pt sans,sans-serif;
+    line-height: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.date-time {
+    color: #f26160;
+    font-size: 14px;
+    font-family: pt sans,sans-serif;
+    line-height: 15px;
+    margin-left: 3px;
+}
+
+.img {
+    width: 80%;
+    height: auto;
+}
+
+.text {
+    font-family: Serif;
+    font-size: 20px;
+    letter-spacing: 0.5px;
+    text-align: justify
+}
